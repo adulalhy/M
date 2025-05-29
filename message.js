@@ -563,32 +563,26 @@ case 'setpp':
     try {
         let mediau;
 
-        if (m.quoted && m.quoted.message) {
-            const quotedMsg = m.quoted.message.imageMessage || m.quoted.message?.viewOnceMessage?.message?.imageMessage;
-
-            if (!quotedMsg || !quotedMsg.mediaKey) {
-                return reply('❌ Pastikan Anda mereply gambar yang bukan foto sekali lihat!');
-            }
-
-            mediau = await client.downloadMediaMessage(m.quoted); 
-        } else if (m.message.imageMessage && m.message.imageMessage.mediaKey) {
-            mediau = await client.downloadMediaMessage(m);
+        if (m.quoted && m.quoted.message && m.quoted.message.imageMessage) {
+            mediau = await client.downloadMediaMessage(m.quoted.message.imageMessage);
+        } else if (m.message.imageMessage) {
+            mediau = await client.downloadMediaMessage(m.message.imageMessage);
         } else {
             return reply('❌ Reply atau kirim gambar dengan caption "setpp"!');
         }
 
-        // 🔹 Validasi sebelum mengupdate foto profil
+        // 🔹 Pastikan media tidak kosong sebelum update foto profil
         if (!mediau || mediau.length < 1) {
             return reply('❌ Gagal mengunduh gambar! Pastikan formatnya benar.');
         }
 
-        // Resize gambar agar sesuai dengan ukuran profil WhatsApp
+        // Resize gambar agar sesuai ukuran profil WhatsApp
         const { img, preview } = await generateProfilePicture(mediau);
 
         await client.updateProfilePicture(botNumber, { img, preview });
         reply('✅ Done Bosss!')
     } catch (error) {
-        console.error("❌ Error saat memperbarui profil:", error);
+        console.error("❌ Error saat memperbarui profil:", error.message);
         reply('❌ Terjadi kesalahan, coba lagi!');
     }
 break;
