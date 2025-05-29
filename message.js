@@ -566,26 +566,24 @@ case 'setpp':
         let mediau;
 
         if (m.quoted && m.quoted.message && m.quoted.message.imageMessage) {
-            mediau = await client.downloadMediaMessage(m.quoted.message.imageMessage);
+            mediau = await m.quoted.download();
         } else if (m.message.imageMessage) {
-            mediau = await client.downloadMediaMessage(m.message.imageMessage);
+            mediau = await m.download();
         } else {
             return reply('❌ Reply atau kirim gambar dengan caption "setpp"!');
         }
 
-        // 🔹 Pastikan media tidak kosong sebelum update foto profil
         if (!mediau || mediau.length < 1) {
             return reply('❌ Gagal mengunduh gambar! Pastikan formatnya benar.');
         }
 
-        // Resize gambar agar sesuai ukuran profil WhatsApp
-        const { img, preview } = await generateProfilePictureFixed(mediau);
-
-        await client.updateProfilePicture(botNumber, { img, preview });
-        reply('✅ Done Bosss!')
+        await client.updateProfilePicture(botNumber, { url: mediau });
+        reply('✅ Done Bosss! Foto profil berhasil diperbarui.');
     } catch (error) {
-        console.error("❌ Error saat memperbarui profil:", error.message);
-        reply('❌ Terjadi kesalahan, coba lagi!');
+        console.error("❌ Error saat memperbarui profil:", error);
+
+        // 🔹 Kirim error langsung ke chat
+        reply(`❌ Terjadi kesalahan: ${error.message}`);
     }
 break;
 case 'addcase': {
