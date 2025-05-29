@@ -79,7 +79,7 @@ module.exports = client = async (client, m, chatUpdate, store) => {
             sleep,
             formatSize,
             generateProfilePicture,
-            generateProfilPictureFixed
+            generateProfilePictureFixed
            } = require('./start/lib/myfunction');
         
         const { remini } = require('./start/lib/function/remini');
