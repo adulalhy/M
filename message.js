@@ -1,13 +1,4 @@
-
-/*─────────────────────────────────────────
-  GitHub   : https://github.com/kiuur    
-  YouTube  : https://youtube.com/@kyuurzy
-  Rest API : https://laurine.site        
-  Telegram : https://kyuucode.t.me       
-──────────────────────────────────────────*/
-
 require('./settings/config');
-
 const fs = require('fs');
 const axios = require('axios');
 const chalk = require("chalk");
