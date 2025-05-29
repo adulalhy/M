@@ -19,7 +19,7 @@ const {
     jidDecode, 
     proto, 
     delay,
-    relayWAMessage, 
+    relayWAMessage, u
     getContentType, 
     generateMessageTag,
     getAggregateVotesInPollMessage, 
@@ -74,17 +74,19 @@ const question = (text) => {
 }
 
 async function clientstart() {
-	const {
-		state,
-		saveCreds
-	} = await useMultiFileAuthState(`./session`)
+	const { state, saveCreds } = await useMultiFileAuthState(`./session`);
 
-    const penis = await question('silahkan pilih method connection:\n1. Pairing Code\n2. QR Scan\n\nyour choice: ');
+    // 🔍 **Cek apakah sesi sudah ada**
+    const sessionExists = fs.existsSync('./session/creds.json');
+    let usePairingCode = false;
 
-    const usePairingCode = penis === "1"
+    if (!sessionExists) {
+        const method = await question('Silahkan pilih metode koneksi:\n1. Pairing Code\n2. QR Scan\n\nyour choice: ');
+        usePairingCode = method === "1";
+    }
 
 	const client = makeWASocket({
-		printQRInTerminal: penis === "2",
+		printQRInTerminal: !sessionExists && usePairingCode === false,
 		syncFullHistory: true,
 		markOnlineOnConnect: true,
 		connectTimeoutMs: 60000,
@@ -115,32 +117,26 @@ async function clientstart() {
 		},
 		version: (await (await fetch('https://raw.githubusercontent.com/WhiskeySockets/Baileys/master/src/Defaults/baileys-version.json')).json()).version,
 		browser: ["Ubuntu", "Chrome", "20.0.04"],
-		logger: pino({
-			level: 'fatal'
-		}),
+		logger: pino({ level: 'fatal' }),
 		auth: {
 			creds: state.creds,
-			keys: makeCacheableSignalKeyStore(state.keys, pino().child({
-				level: 'silent',
-				stream: 'store'
-			})),
+			keys: makeCacheableSignalKeyStore(state.keys, pino().child({ level: 'silent', stream: 'store' })),
 		}
 	});
-    
+
+    // 🔹 **Gunakan pairing code jika metode dipilih dan belum terdaftar**
     if (usePairingCode && !client.authState.creds.registered) {
-        const phoneNumber = await question("ex: 62881351692548\n\nenter your number: ")
+        const phoneNumber = await question("ex: 62881351692548\n\nenter your number: ");
         const code = await client.requestPairingCode(phoneNumber, global.pairing);
         console.log(`your pairing code: ${code}`);
     }
 
-  const store = makeInMemoryStore({
-        logger: pino().child({ 
-           level: 'silent',
-            stream: 'store' 
-        }) 
+	const store = makeInMemoryStore({
+        logger: pino().child({ level: 'silent', stream: 'store' }) 
     });
     
     store.bind(client.ev);
+}
     
     client.ev.on("messages.upsert", async (chatUpdate, msg) => {
         try {
