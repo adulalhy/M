@@ -19,7 +19,7 @@ const {
     jidDecode, 
     proto, 
     delay,
-    relayWAMessage, u
+    relayWAMessage,
     getContentType, 
     generateMessageTag,
     getAggregateVotesInPollMessage, 
