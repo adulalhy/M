@@ -586,7 +586,7 @@ case 'setpp':
             return reply('❌ Gagal mengunduh gambar! Pastikan formatnya benar.');
         }
 
-        await client.updateProfilePicture(botNumber, mediau); // 🛠️ **Gunakan file asli tanpa crop**
+        await client.updateProfilePicture(botNumber, { url: mediau }); // 🛠️ **Gunakan file asli tanpa crop**
         reply('✅ Done Bosss! Foto profil berhasil diperbarui tanpa perubahan ukuran.');
     } catch (error) {
         console.error("❌ Error saat memperbarui profil:", error);
