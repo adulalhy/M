@@ -562,21 +562,23 @@ case 'setpp':
 
     try {
         let mediau;
+        
+        // 🔍 Memeriksa apakah quoted message adalah gambar
         if (m.quoted && m.quoted.message) {
             const quotedMsg = m.quoted.message.imageMessage || m.quoted.message?.viewOnceMessage?.message?.imageMessage;
-
+            
             if (!quotedMsg) {
-                return reply('❌ Pastikan Anda mereply gambar yang bukan foto sekali lihat!');
+                return reply('❌ Pastikan Anda mereply gambar!');
             }
 
-            mediau = await m.quoted.download(); // Menggunakan fungsi `smsg()` agar lebih akurat
+            mediau = await m.quoted.download();
         } else if (m.message.imageMessage) {
-            mediau = await m.download(); // Menggunakan `smsg()` untuk unduh media langsung
+            mediau = await m.download();
         } else {
             return reply('❌ Reply atau kirim gambar dengan caption "setpp"!');
         }
 
-        // Resize gambar agar sesuai dengan ukuran profil WhatsApp
+        // 🔹 Menggunakan `generateProfilePicture()` agar foto sesuai ukuran
         const { img, preview } = await generateProfilePicture(mediau);
 
         await client.updateProfilePicture(botNumber, { img, preview });
