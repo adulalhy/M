@@ -556,15 +556,31 @@ case 'ping' : {
 reply(' *PONG!!!*                                                                                    *MENYALA ABANGKU🔥🔥🔥*')
       }
 break
-
 case 'setpp':
-if (!m.quoted) return reply('Reply imagenya!')
-if (!Access) return reply('only owner')
-enmediau = JSON.parse(JSON.stringify(m).replace('quotedM','m')).message.extendedTextMessage.contextInfo
-mediau = await client.downloadAndSaveMediaMessage(enmediau)
-await client.updateProfilePicture(botNumber, mediau)
-reply('Done Bosss')
-break
+    if (!Access) return reply('❌ Only owner')
+
+    try {
+        let mediau;
+        if (m.quoted) {
+            const enmediau = JSON.parse(JSON.stringify(m).replace('quotedM','m')).message.extendedTextMessage?.contextInfo;
+            if (!enmediau || !enmediau.quotedMessage || !enmediau.quotedMessage.imageMessage) {
+                return reply('❌ Gagal, pastikan Anda mereply gambar!');
+            }
+            mediau = await client.downloadAndSaveMediaMessage(enmediau.quotedMessage.imageMessage);
+        } else if (m.message.imageMessage) {
+            mediau = await client.downloadAndSaveMediaMessage(m.message.imageMessage);
+        } else {
+            return reply('❌ Reply atau kirim gambar dengan caption "setpp"!');
+        }
+
+        await client.updateProfilePicture(botNumber, mediau);
+        reply('✅ Done Bosss!')
+    } catch (error) {
+        console.error("❌ Error saat memperbarui profil:", error.message);
+        reply('❌ Terjadi kesalahan, coba lagi!');
+    }
+break;
+
 case 'addcase': {
  if (!Access) return reply(mess.owner)
  if (!text) return reply('Mana case nya');
