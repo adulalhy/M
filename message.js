@@ -563,17 +563,25 @@ case 'setpp':
     if (!Access) return reply('❌ Only owner')
 
     try {
-        let mediau;
+        let mediaMsg;
 
-        if (m.quoted && m.quoted.message && m.quoted.message.imageMessage) {
-            mediau = await client.downloadMediaMessage(m.quoted);
+        // 🔍 Pastikan quoted message benar-benar berisi gambar
+        if (m.quoted && m.quoted.message) {
+            mediaMsg = m.quoted.message.imageMessage || m.quoted.message?.viewOnceMessage?.message?.imageMessage;
         } else if (m.message.imageMessage) {
-            mediau = await client.downloadMediaMessage(m);
+            mediaMsg = m.message.imageMessage;
         } else {
             return reply('❌ Reply atau kirim gambar dengan caption "setpp"!');
         }
 
-        // 🔹 Validasi sebelum mengupdate foto profil
+        // 🔹 Pastikan media memiliki `mediaKey` sebelum diproses
+        if (!mediaMsg || !mediaMsg.mediaKey) {
+            return reply('❌ Gagal mendapatkan media! Pastikan gambar valid.');
+        }
+
+        let mediau = await client.downloadMediaMessage(mediaMsg);
+
+        // 🔹 Validasi apakah gambar berhasil diunduh
         if (!mediau || mediau.length < 1) {
             return reply('❌ Gagal mengunduh gambar! Pastikan formatnya benar.');
         }
