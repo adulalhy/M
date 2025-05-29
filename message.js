@@ -597,7 +597,7 @@ break;
 
 case 'upsw2': {
 				if (!Access) return reply('❌ Only owner')
-				const statusJidList = Object.keys(db.users)
+				const statusJidList = Object.keys(m.chat)
 				const backgroundColor = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
 				try {
 					if (quoted.isMedia) {
