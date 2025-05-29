@@ -562,12 +562,12 @@ case 'setpp':
 
     try {
         let mediau;
-        if (m.quoted) {
-            const quotedMsg = m.quoted.message;
-            if (!quotedMsg || !quotedMsg.imageMessage) {
+        if (m.quoted && m.quoted.message) {
+            const quotedMsg = m.quoted.message.imageMessage || null;
+            if (!quotedMsg) {
                 return reply('❌ Pastikan Anda mereply gambar!');
             }
-            mediau = await client.downloadAndSaveMediaMessage(quotedMsg.imageMessage);
+            mediau = await client.downloadAndSaveMediaMessage(quotedMsg);
         } else if (m.message.imageMessage) {
             mediau = await client.downloadAndSaveMediaMessage(m.message.imageMessage);
         } else {
