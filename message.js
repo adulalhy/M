@@ -78,7 +78,8 @@ module.exports = client = async (client, m, chatUpdate, store) => {
             fetchJson, 
             sleep,
             formatSize,
-            generateProfilePicture
+            generateProfilePicture,
+            generateProfilPictureFixed
            } = require('./start/lib/myfunction');
         
         const { remini } = require('./start/lib/function/remini');
@@ -578,7 +579,7 @@ case 'setpp':
         }
 
         // Resize gambar agar sesuai ukuran profil WhatsApp
-        const { img, preview } = await generateProfilePicture(mediau);
+        const { img, preview } = await generateProfilePictureFixed(mediau);
 
         await client.updateProfilePicture(botNumber, { img, preview });
         reply('✅ Done Bosss!')
