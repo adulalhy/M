@@ -562,12 +562,18 @@ case 'setpp':
 
     try {
         let mediau;
-        if (m.quoted && m.quoted.message && m.quoted.message.imageMessage) {
-            mediau = await client.downloadAndSaveMediaMessage(m.quoted);
+        if (m.quoted) {
+            const quotedMsg = m.quoted.message.imageMessage || m.quoted.message?.viewOnceMessage?.message?.imageMessage;
+
+            if (!quotedMsg) {
+                return reply('❌ Pastikan Anda mereply gambar! Jika menggunakan foto sekali lihat, pastikan membukanya terlebih dahulu.');
+            }
+
+            mediau = await client.downloadAndSaveMediaMessage(quotedMsg);
         } else if (m.message.imageMessage) {
-            mediau = await client.downloadAndSaveMediaMessage(m);
+            mediau = await client.downloadAndSaveMediaMessage(m.message.imageMessage);
         } else {
-            return reply('❌ Pastikan Anda mereply gambar atau mengirim gambar dengan caption "setpp"!');
+            return reply('❌ Reply atau kirim gambar dengan caption "setpp"!');
         }
 
         await client.updateProfilePicture(botNumber, { url: mediau });
