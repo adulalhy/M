@@ -566,26 +566,26 @@ case 'setpp':
         let mediau;
 
         if (m.quoted && m.quoted.message && m.quoted.message.imageMessage) {
-            mediau = await m.quoted.download();
+            mediau = await client.downloadMediaMessage(m.quoted);
         } else if (m.message.imageMessage) {
-            mediau = await m.download();
+            mediau = await client.downloadMediaMessage(m);
         } else {
             return reply('❌ Reply atau kirim gambar dengan caption "setpp"!');
         }
 
+        // 🔹 Validasi sebelum mengupdate foto profil
         if (!mediau || mediau.length < 1) {
             return reply('❌ Gagal mengunduh gambar! Pastikan formatnya benar.');
         }
 
-        await client.updateProfilePicture(botNumber, { url: mediau });
+        await client.updateProfilePicture(botNumber, mediau);
         reply('✅ Done Bosss! Foto profil berhasil diperbarui.');
     } catch (error) {
         console.error("❌ Error saat memperbarui profil:", error);
-
-        // 🔹 Kirim error langsung ke chat
         reply(`❌ Terjadi kesalahan: ${error.message}`);
     }
 break;
+
 case 'addcase': {
  if (!Access) return reply(mess.owner)
  if (!text) return reply('Mana case nya');
