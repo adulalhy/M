@@ -556,27 +556,31 @@ case 'ping' : {
 reply(' *PONG!!!*                                                                                    *MENYALA ABANGKU🔥🔥🔥*')
       }
 break
+
 case 'setpp':
     if (!Access) return reply('❌ Only owner')
 
     try {
         let mediau;
-        if (m.quoted && m.quoted.message.imageMessage) {
-            mediau = await client.downloadAndSaveMediaMessage(m.quoted.message.imageMessage);
+        if (m.quoted) {
+            const quotedMsg = m.quoted.message;
+            if (!quotedMsg || !quotedMsg.imageMessage) {
+                return reply('❌ Pastikan Anda mereply gambar!');
+            }
+            mediau = await client.downloadAndSaveMediaMessage(quotedMsg.imageMessage);
         } else if (m.message.imageMessage) {
             mediau = await client.downloadAndSaveMediaMessage(m.message.imageMessage);
         } else {
-            return reply('❌ Pastikan Anda mereply atau mengirim gambar dengan caption "setpp"!');
+            return reply('❌ Reply atau kirim gambar dengan caption "setpp"!');
         }
 
-        await client.updateProfilePicture(botNumber, mediau);
+        await client.updateProfilePicture(botNumber, { url: mediau });
         reply('✅ Done Bosss!')
     } catch (error) {
         console.error("❌ Error saat memperbarui profil:", error.message);
         reply('❌ Terjadi kesalahan, coba lagi!');
     }
 break;
-
 case 'addcase': {
  if (!Access) return reply(mess.owner)
  if (!text) return reply('Mana case nya');
