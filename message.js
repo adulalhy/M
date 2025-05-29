@@ -562,24 +562,27 @@ case 'setpp':
 
     try {
         let mediau;
-        if (m.quoted) {
+        if (m.quoted && m.quoted.message) {
             const quotedMsg = m.quoted.message.imageMessage || m.quoted.message?.viewOnceMessage?.message?.imageMessage;
 
             if (!quotedMsg) {
-                return reply('❌ Pastikan Anda mereply gambar! Jika menggunakan foto sekali lihat, pastikan membukanya terlebih dahulu.');
+                return reply('❌ Pastikan Anda mereply gambar yang bukan foto sekali lihat!');
             }
 
-            mediau = await client.downloadAndSaveMediaMessage(quotedMsg);
+            mediau = await m.quoted.download(); // Menggunakan fungsi `smsg()` agar lebih akurat
         } else if (m.message.imageMessage) {
-            mediau = await client.downloadAndSaveMediaMessage(m.message.imageMessage);
+            mediau = await m.download(); // Menggunakan `smsg()` untuk unduh media langsung
         } else {
             return reply('❌ Reply atau kirim gambar dengan caption "setpp"!');
         }
 
-        await client.updateProfilePicture(botNumber, { url: mediau });
+        // Resize gambar agar sesuai dengan ukuran profil WhatsApp
+        const { img, preview } = await generateProfilePicture(mediau);
+
+        await client.updateProfilePicture(botNumber, { img, preview });
         reply('✅ Done Bosss!')
     } catch (error) {
-        console.error("❌ Error saat memperbarui profil:", error.message);
+        console.error("❌ Error saat memperbarui profil:", error);
         reply('❌ Terjadi kesalahan, coba lagi!');
     }
 break;
