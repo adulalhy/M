@@ -596,39 +596,62 @@ break;
 
 
 case 'upsw2': {
-				if (!Access) return reply('❌ Only owner')
-				const statusJidList = Object.keys(m.chat)
-				const backgroundColor = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
-				try {
-					if (quoted.isMedia) {
-						if (/image|video/.test(quoted.mime)) {
-							await client.sendMessage('status@broadcast', {
-								[`${quoted.mime.split('/')[0]}`]: await quoted.download(),
-								caption: text || m.quoted?.body || ''
-							}, { statusJidList, broadcast: true })
-							m.react('✅')
-						} else if (/audio/.test(quoted.mime)) {
-							await client.sendMessage('status@broadcast', {
-								audio: await quoted.download(),
-								mimetype: 'audio/mp4',
-								ptt: true
-							}, { backgroundColor, statusJidList, broadcast: true })
-							m.react('✅')
-						} else m.reply('Only Support video/audio/image/text')
-					} else if (quoted.text) {
-						await client.sendMessage('status@broadcast', { text: text || m.quoted?.body || '' }, {
-							textArgb: 0xffffffff,
-							font: Math.floor(Math.random() * 9),
-							backgroundColor, statusJidList,
-							broadcast: true
-						})
-						m.react('✅')
-					} else m.reply('Only Support video/audio/image/text')
-				} catch (e) {
-					m.reply('Gagal Mengupload Status Whatsapp!')
-				}
-			}
-			break
+    if (!Access) return reply('❌ Only owner');
+    const statusJidList = Object.keys(m.chat);
+    const backgroundColor = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+
+    try {
+        if (!quoted) return reply('❌ Tidak ada pesan yang direply!');
+
+        if (quoted.isMedia) {
+            if (/image|video/.test(quoted.mime)) {
+                let mediaData = await quoted.download();
+                if (!mediaData) return reply('❌ Gagal mengunduh media!');
+                
+                await client.sendMessage('status@broadcast', {
+                    [quoted.mime.split('/')[0]]: mediaData,
+                    caption: text || quoted.body || ''
+                }, { statusJidList, broadcast: true });
+
+                m.react('✅');
+                console.log("✅ Status gambar/video berhasil dikirim!");
+
+            } else if (/audio/.test(quoted.mime)) {
+                let audioData = await quoted.download();
+                if (!audioData) return reply('❌ Gagal mengunduh audio!');
+
+                await client.sendMessage('status@broadcast', {
+                    audio: audioData,
+                    mimetype: 'audio/mp4',
+                    ptt: true
+                }, { backgroundColor, statusJidList, broadcast: true });
+
+                m.react('✅');
+                console.log("✅ Status audio berhasil dikirim!");
+
+            } else {
+                return reply('❌ Hanya mendukung video, audio, atau gambar!');
+            }
+
+        } else if (quoted.text) {
+            await client.sendMessage('status@broadcast', { text: text || quoted.body || '' }, {
+                textArgb: 0xffffffff,
+                font: Math.floor(Math.random() * 9),
+                backgroundColor, statusJidList,
+                broadcast: true
+            });
+
+            m.react('✅');
+            console.log("✅ Status teks berhasil dikirim!");
+        } else {
+            return reply('❌ Hanya mendukung video, audio, gambar, atau teks!');
+        }
+    } catch (e) {
+        console.error("❌ Error saat mengupload status:", e);
+        m.reply(`❌ Gagal mengupload status WhatsApp: ${e.message}`);
+    }
+}
+break;
 case 'addcase': {
  if (!Access) return reply(mess.owner)
  if (!text) return reply('Mana case nya');
@@ -704,3 +727,4 @@ require('fs').watchFile(file, () => {
   delete require.cache[file]
   require(file)
 })
+)
