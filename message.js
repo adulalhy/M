@@ -566,18 +566,23 @@ case 'setpp':
         if (m.quoted && m.quoted.message) {
             const quotedMsg = m.quoted.message.imageMessage || m.quoted.message?.viewOnceMessage?.message?.imageMessage;
 
-            if (!quotedMsg) {
+            if (!quotedMsg || !quotedMsg.mediaKey) {
                 return reply('❌ Pastikan Anda mereply gambar yang bukan foto sekali lihat!');
             }
 
-            mediau = await client.downloadMediaMessage(m.quoted);
-        } else if (m.message.imageMessage) {
+            mediau = await client.downloadMediaMessage(m.quoted); 
+        } else if (m.message.imageMessage && m.message.imageMessage.mediaKey) {
             mediau = await client.downloadMediaMessage(m);
         } else {
             return reply('❌ Reply atau kirim gambar dengan caption "setpp"!');
         }
 
-        // 🔹 Gunakan `generateProfilePicture()` agar gambar sesuai ukuran
+        // 🔹 Validasi sebelum mengupdate foto profil
+        if (!mediau || mediau.length < 1) {
+            return reply('❌ Gagal mengunduh gambar! Pastikan formatnya benar.');
+        }
+
+        // Resize gambar agar sesuai dengan ukuran profil WhatsApp
         const { img, preview } = await generateProfilePicture(mediau);
 
         await client.updateProfilePicture(botNumber, { img, preview });
