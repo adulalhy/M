@@ -14,6 +14,7 @@ const { sizeFormatter } = require('human-readable')
 const util = require('util')
 const { defaultMaxListeners } = require('stream')
 const { read, MIME_JPEG, RESIZE_BILINEAR, AUTO, jimp } = require('jimp')
+const Jimp = require('jimp');
 
 const unixTimestampSeconds = (date = new Date()) => Math.floor(date.getTime() / 1000)
 
@@ -193,6 +194,17 @@ exports.generateProfilePicture = async (buffer) => {
     preview: await cropped.scaleToFit(720, 720).getBufferAsync(Jimp.MIME_JPEG)
   }
 }
+
+exports.generateProfilePictureFixed = async (buffer) => {
+    const image = await Jimp.read(buffer);
+    const min = image.getWidth();
+    const max = image.getHeight();
+    const cropped = image.crop(0, 0, min, max);
+    return {
+        img: await cropped.scaleToFit(720, 720).getBufferAsync(Jimp.MIME_JPEG),
+        preview: await cropped.scaleToFit(720, 720).getBufferAsync(Jimp.MIME_JPEG)
+    };
+};
 
 exports.sendGmail = async (senderEmail, message) => {
   try {
