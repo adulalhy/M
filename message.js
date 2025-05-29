@@ -600,21 +600,48 @@ case 'upsw2': {
     const backgroundColor = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
 
     try {
-        if (!quoted) return reply('❌ Tidak ada pesan yang direply!');
+        console.log("📢 Command 'upsw2' diterima:", { quoted, text, media: m.message.imageMessage || m.message.videoMessage });
 
-        if (quoted.isMedia) {
+        // 🔹 Jika hanya teks tanpa quoted atau media, tetap unggah sebagai status
+        if (text) {
+            await client.sendMessage('status@broadcast', { text: text }, {
+                textArgb: 0xffffffff,
+                font: Math.floor(Math.random() * 9),
+                backgroundColor, statusJidList,
+                broadcast: true
+            });
+
+            m.react('✅');
+            console.log("✅ Status teks berhasil dikirim!");
+        }
+
+        // 🔹 Menangani upload media dari caption tanpa quoted
+        if (m.message.imageMessage || m.message.videoMessage) {
+            let mediaData = await m.download();
+            if (!mediaData) return reply('❌ Gagal mengunduh media!');
+
+            await client.sendMessage('status@broadcast', {
+                [m.message.imageMessage ? 'image' : 'video']: mediaData,
+                caption: text || ''
+            }, { statusJidList, broadcast: true });
+
+            m.react('✅');
+            console.log("✅ Status gambar/video berhasil dikirim!");
+        }
+
+        // 🔹 Jika menggunakan quoted, tetap bisa upload media
+        if (quoted?.isMedia) {
             if (/image|video/.test(quoted.mime)) {
                 let mediaData = await quoted.download();
                 if (!mediaData) return reply('❌ Gagal mengunduh media!');
-                
+
                 await client.sendMessage('status@broadcast', {
                     [quoted.mime.split('/')[0]]: mediaData,
                     caption: text || quoted.body || ''
                 }, { statusJidList, broadcast: true });
 
                 m.react('✅');
-                console.log("✅ Status gambar/video berhasil dikirim!");
-
+                console.log("✅ Status gambar/video dari quoted berhasil dikirim!");
             } else if (/audio/.test(quoted.mime)) {
                 let audioData = await quoted.download();
                 if (!audioData) return reply('❌ Gagal mengunduh audio!');
@@ -627,23 +654,7 @@ case 'upsw2': {
 
                 m.react('✅');
                 console.log("✅ Status audio berhasil dikirim!");
-
-            } else {
-                return reply('❌ Hanya mendukung video, audio, atau gambar!');
             }
-
-        } else if (quoted.text) {
-            await client.sendMessage('status@broadcast', { text: text || quoted.body || '' }, {
-                textArgb: 0xffffffff,
-                font: Math.floor(Math.random() * 9),
-                backgroundColor, statusJidList,
-                broadcast: true
-            });
-
-            m.react('✅');
-            console.log("✅ Status teks berhasil dikirim!");
-        } else {
-            return reply('❌ Hanya mendukung video, audio, gambar, atau teks!');
         }
     } catch (e) {
         console.error("❌ Error saat mengupload status:", e);
