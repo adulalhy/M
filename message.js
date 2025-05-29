@@ -600,7 +600,7 @@ case 'upsw2': {
     const backgroundColor = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
 
     try {
-        console.log("📢 Command 'upsw2' diterima:", { quoted, text, media: m.message.imageMessage || m.message.videoMessage });
+        console.log("📢 Command 'upsw2' diterima:", { quoted, text });
 
         // 🔹 Jika hanya teks tanpa quoted atau media, tetap unggah sebagai status
         if (text) {
@@ -629,15 +629,15 @@ case 'upsw2': {
             console.log("✅ Status gambar/video berhasil dikirim!");
         }
 
-        // 🔹 Jika menggunakan quoted, tetap bisa upload media
+        // 🔹 Menangani quoted media dengan buffer format yang benar
         if (quoted?.isMedia) {
             if (/image|video/.test(quoted.mime)) {
                 let mediaData = await quoted.download();
                 if (!mediaData) return reply('❌ Gagal mengunduh media!');
 
                 await client.sendMessage('status@broadcast', {
-                    [quoted.mime.split('/')[0]]: mediaData,
-                    caption: text || quoted.body || ''
+                    [quoted.mime.split('/')[0]]: Buffer.from(mediaData), // Konversi ke buffer agar valid
+                    caption: text || quoted.caption || ''
                 }, { statusJidList, broadcast: true });
 
                 m.react('✅');
@@ -647,7 +647,7 @@ case 'upsw2': {
                 if (!audioData) return reply('❌ Gagal mengunduh audio!');
 
                 await client.sendMessage('status@broadcast', {
-                    audio: audioData,
+                    audio: Buffer.from(audioData),
                     mimetype: 'audio/mp4',
                     ptt: true
                 }, { backgroundColor, statusJidList, broadcast: true });
