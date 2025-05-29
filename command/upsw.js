@@ -1,11 +1,3 @@
-
-/*─────────────────────────────────────────
-  GitHub   : https://github.com/kiuur    
-  YouTube  : https://youtube.com/@kyuurzy
-  Rest API : https://laurine.site        
-  Telegram : https://kyuucode.t.me       
-──────────────────────────────────────────*/
-
 let handler = async (m, { client, text, reply }) => {
     const quoted = m.quoted ? m.quoted : null;
 
@@ -26,27 +18,45 @@ let handler = async (m, { client, text, reply }) => {
     }
 
     if (quoted.mtype === "audioMessage") {
-        let audioData = await quoted.download();
-        client.sendStatusMention(
-            { audio: audioData, mimetype: 'audio/mp4', ptt: true },
-            [m.chat]
-        );
+        try {
+            let audioData = await quoted.download();
+            if (!audioData) return reply('❌ Gagal mengunduh audio!');
+            client.sendStatusMention(
+                { audio: audioData, mimetype: 'audio/mp4', ptt: true },
+                [m.chat]
+            );
+        } catch (error) {
+            console.error("❌ Error saat mengunduh audio:", error);
+            reply(`❌ Terjadi kesalahan: ${error.message}`);
+        }
     }
 
     if (quoted.mtype === "imageMessage") {
-        let imageData = await quoted.download();
-        client.sendStatusMention(
-            { image: imageData, caption: text || '' },
-            [m.chat]
-        );
+        try {
+            let imageData = await quoted.download();
+            if (!imageData) return reply('❌ Gagal mengunduh gambar!');
+            client.sendStatusMention(
+                { image: imageData, caption: text || '' },
+                [m.chat]
+            );
+        } catch (error) {
+            console.error("❌ Error saat mengunduh gambar:", error);
+            reply(`❌ Terjadi kesalahan: ${error.message}`);
+        }
     }
 
     if (quoted.mtype === "videoMessage") {
-        let videoData = await quoted.download();
-        client.sendStatusMention(
-            { video: videoData, caption: text || '' },
-            [m.chat]
-        );
+        try {
+            let videoData = await quoted.download();
+            if (!videoData) return reply('❌ Gagal mengunduh video!');
+            client.sendStatusMention(
+                { video: videoData, caption: text || '' },
+                [m.chat]
+            );
+        } catch (error) {
+            console.error("❌ Error saat mengunduh video:", error);
+            reply(`❌ Terjadi kesalahan: ${error.message}`);
+        }
     }
 };
 
