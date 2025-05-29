@@ -1,18 +1,36 @@
 let handler = async (m, { client, text, reply }) => {
     const quoted = m.quoted ? m.quoted : null;
 
+    // 🔹 Jika hanya teks tanpa quoted, tetap kirim sebagai status
     if (!quoted && text) {
         client.sendStatusMention({ text: text }, [m.chat]);
         return;
     }
 
-    if (!quoted) return reply('❌ Tidak ada pesan yang direply!');
+    // 🔹 Jika tidak ada quoted atau teks, beri peringatan
+    if (!quoted && !text && !m.message.imageMessage) {
+        return reply('❌ Tidak ada media atau teks yang dikirim!');
+    }
 
+    // 🔹 Menangani quoted message
     if (quoted?.mtype === "conversation") {
         client.sendStatusMention({ text: quoted.text || '' }, [m.chat]);
         return;
     }
 
+    // 🔹 Menangani upload media tanpa quoted
+    if (!quoted && m.message.imageMessage) {
+        try {
+            let imageData = await m.download();
+            if (!imageData) return reply('❌ Gagal mengunduh gambar!');
+            client.sendStatusMention({ image: imageData, caption: text || '' }, [m.chat]);
+        } catch (error) {
+            console.error("❌ Error saat mengunduh gambar:", error);
+            reply(`❌ Terjadi kesalahan: ${error.message}`);
+        }
+    }
+
+    // 🔹 Menangani quoted media
     if (quoted?.mtype === "audioMessage") {
         try {
             let audioData = await quoted.download();
