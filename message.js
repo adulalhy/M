@@ -594,7 +594,6 @@ case 'setpp':
     }
 break;
 
-
 case 'upsw2': {
     if (!Access) return reply('❌ Only owner');
     const statusJidList = Object.keys(m.chat);
@@ -652,6 +651,7 @@ case 'upsw2': {
     }
 }
 break;
+
 case 'addcase': {
  if (!Access) return reply(mess.owner)
  if (!text) return reply('Mana case nya');
