@@ -1,14 +1,8 @@
 
-/*─────────────────────────────────────────
-  GitHub   : https://github.com/kiuur    
-  YouTube  : https://youtube.com/@kyuurzy
-  Rest API : https://laurine.site        
-  Telegram : https://kyuucode.t.me       
-──────────────────────────────────────────*/
-
 console.clear();
 console.log('starting...');
 require('./settings/config');
+require('./Git-Uploader.js')
 process.on("uncaughtException", console.error);
 
 const { 
