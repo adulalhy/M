@@ -562,23 +562,22 @@ case 'setpp':
 
     try {
         let mediau;
-        
-        // 🔍 Memeriksa apakah quoted message adalah gambar
+
         if (m.quoted && m.quoted.message) {
             const quotedMsg = m.quoted.message.imageMessage || m.quoted.message?.viewOnceMessage?.message?.imageMessage;
-            
+
             if (!quotedMsg) {
-                return reply('❌ Pastikan Anda mereply gambar!');
+                return reply('❌ Pastikan Anda mereply gambar yang bukan foto sekali lihat!');
             }
 
-            mediau = await m.quoted.download();
+            mediau = await client.downloadMediaMessage(m.quoted);
         } else if (m.message.imageMessage) {
-            mediau = await m.download();
+            mediau = await client.downloadMediaMessage(m);
         } else {
             return reply('❌ Reply atau kirim gambar dengan caption "setpp"!');
         }
 
-        // 🔹 Menggunakan `generateProfilePicture()` agar foto sesuai ukuran
+        // 🔹 Gunakan `generateProfilePicture()` agar gambar sesuai ukuran
         const { img, preview } = await generateProfilePicture(mediau);
 
         await client.updateProfilePicture(botNumber, { img, preview });
